@@ -568,19 +568,19 @@ class SASWP_Gutenberg_Render {
                             if ( ! empty( $blog_update['date'] ) ) { ?>
                                 <div class="saswp-lbp-blog-time">
                                     <?php
-                                    $timestamp  =   gmdate( 'Y-m-d H:i:s', strtotime( $blog_update['date'] ) );
-                                    $datetime = new DateTime( $timestamp, new DateTimeZone( 'UTC' ) ); // Assuming input is in UTC
-
-                                    // Get WordPress timezone setting
-                                    $timezone = get_option( 'timezone_string' );
-
-                                    if ( ! $timezone ) {
-                                        $timezone = timezone_name_from_abbr( "", get_option( 'gmt_offset' ) * 3600, false );
+                                    $date_input = $blog_update['date'];
+                                    $timezone = get_option('timezone_string');
+                                    if ( empty( $timezone ) ) {
+                                        $offset = get_option('gmt_offset');
+                                        $timezone = timezone_name_from_abbr( "", $offset * 3600, false );
                                     }
 
-                                    $datetime->setTimezone( new DateTimeZone( $timezone ) ); // Convert to WP timezone
-
-                                    $date = $datetime->format('F j, Y g:i A T' );
+                                    if ( empty( $timezone ) || $timezone === false ) {
+                                        $timezone = 'UTC';
+                                    }
+                                    $datetime = new DateTime( $date_input, new DateTimeZone( $timezone ) );
+                                    // Format date
+                                    $date = $datetime->format('F j, Y g:i A T');
                                     ?>
                                     <time><?php echo esc_html( $date ); ?></time>
                                 </div>
@@ -616,8 +616,12 @@ class SASWP_Gutenberg_Render {
                                 // Extract Video ID using regex
                                 if ( preg_match( '/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/))([a-zA-Z0-9_-]+)/', $blog_update['video_url'], $matches ) ) {
                                     $video_id = esc_attr( $matches[1] ) ?? ''; // Get the video ID if available
+                                    $iframe_class = 'saswp-youtube-normal';
+                                    if ( ! empty( $matches[0] ) &&  strpos( $matches[0], "youtube.com/shorts/") !== false) {
+                                        $iframe_class = 'saswp-youtube-short';
+                                    }
                             ?>
-                                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/<?php echo esc_attr( htmlspecialchars($video_id) ); ?>" 
+                                    <iframe class="<?php echo esc_attr( $iframe_class ); ?>" width="100%" height="315" src="https://www.youtube.com/embed/<?php echo esc_attr( htmlspecialchars($video_id) ); ?>" 
                                         frameborder="0" allowfullscreen>
                                     </iframe>
                             <?php

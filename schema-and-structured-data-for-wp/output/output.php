@@ -151,7 +151,7 @@ function saswp_schema_output() {
 	    global $sd_data;
 
     	$Conditionals = saswp_get_all_schema_posts();   
-        
+        $Conditionals = apply_filters( 'saswp_disable_schema_markup', $Conditionals );        
         if(!$Conditionals){
             return ;
         }
@@ -3036,6 +3036,49 @@ function saswp_schema_output() {
                                 $input1 = apply_filters( 'saswp_modify_game_final_schema_output', $input1 );
                                 
                             break;
+
+                            case 'Certification':
+                                                                                    
+                                $input1['@context']                     =   saswp_context_url();
+                                $input1['@type']                        =   'Certification';
+                                $input1['@id']                          =   saswp_get_permalink().'#Certification';  
+                                $input1['name']                         =   saswp_get_the_title();
+                                $input1['description']                  =   saswp_get_the_excerpt(); 
+                                $input1['url']                          =   saswp_get_permalink();                          
+
+                                $input1 = apply_filters( 'saswp_modify_certification_schema_output', $input1 );
+
+                                $input1 = saswp_get_modified_markup( $input1, $schema_type, $schema_post_id, $schema_options );
+                                
+                                if($modified_schema == 1){
+                                    
+                                    $input1 = saswp_certification_schema_markup( $schema_post_id, get_the_ID(), $all_post_meta );
+                                }
+
+                                $input1 = apply_filters( 'saswp_modify_certification_final_schema_output', $input1 );
+                                
+                            break;
+
+                            case 'Guide':
+                                                                                    
+                                $input1['@context']                     =   saswp_context_url();
+                                $input1['@type']                        =   'Guide';
+                                $input1['@id']                          =   saswp_get_permalink().'#Guide';  
+                                $input1['name']                         =   saswp_get_the_title();
+                                $input1['text']                         =   saswp_get_the_excerpt();                           
+
+                                $input1 = apply_filters( 'saswp_modify_guide_schema_output', $input1 );
+
+                                $input1 = saswp_get_modified_markup( $input1, $schema_type, $schema_post_id, $schema_options );
+                                
+                                if($modified_schema == 1){
+                                    
+                                    $input1 = saswp_guide_schema_markup( $schema_post_id, get_the_ID(), $all_post_meta );
+                                }
+
+                                $input1 = apply_filters( 'saswp_modify_guide_final_schema_output', $input1 );
+                                
+                            break;
                             
                             default:
                                 break;
@@ -3062,7 +3105,7 @@ function saswp_schema_output() {
                         
                         global $without_aggregate;
                         
-                        if(!in_array($schema_type, $without_aggregate) && !empty($input1) ){ 
+                        if( ! empty( $without_aggregate ) && is_array( $without_aggregate ) && ! in_array( $schema_type, $without_aggregate ) && !empty( $input1 ) ){ 
                                                      
                                 
                                     if ( $schema_type == 'Review' || $schema_type == 'ReviewNewsArticle' || $schema_type == 'CriticReview' ) {
@@ -4154,15 +4197,15 @@ function saswp_site_navigation_output() {
                           $navObj[] = array(
                                  "@context"  => saswp_context_url(),
                                  "@type"     => "SiteNavigationElement",
-                                 "@id"       => get_home_url().'#'.$menu_name,
+                                 "@id"       => trailingslashit( get_home_url() ) . '#' . sanitize_title( $items->title ),
                                  "name"      => wp_strip_all_tags($items->title),
-                                 "url"       => esc_url($utm_response['url'])
+                                 "url"       => ( strpos( $utm_response['url'], 'http' ) === 0 ) ? $utm_response['url'] : trailingslashit( get_home_url() ) . ltrim( $utm_response['url'], '/' ),
                           );
                         }
 
                 }                                                                                                                                                                                   
             }
-     
+            
             if($navObj){
 
                 $input['@context'] = saswp_context_url(); 
