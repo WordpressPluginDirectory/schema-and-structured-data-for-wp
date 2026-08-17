@@ -212,7 +212,23 @@ function saswp_schema_output() {
                                 
                                 $input1 = saswp_itemlist_schema_markup($schema_post_id, get_the_ID(), $all_post_meta);
 
-                                $input1 = apply_filters('saswp_modify_itemlist__final_schema_output', $input1 );
+                                $input1 = apply_filters('saswp_modify_itemlist_final_schema_output', $input1 );
+                                                                                                                                                                                                                                                
+                            break;
+
+                            case 'CollectionPage':
+                                                                                                                                                
+                                $input1['@context']                     = saswp_context_url();
+                                $input1['@type']                        = 'CollectionPage';  
+                                $input1['url']                          = saswp_get_permalink();  
+
+                                $input1 = apply_filters('saswp_modify_collection_page_schema_output', $input1 );
+                                
+                                $input1 = saswp_collection_page_schema_markup($schema_post_id, get_the_ID(), $all_post_meta);
+
+                                $input1 = saswp_get_modified_markup( $input1, $schema_type, $schema_post_id, $schema_options );
+
+                                $input1 = apply_filters('saswp_modify_collection_page_final_schema_output', $input1 );
                                                                                                                                                                                                                                                 
                             break;
                             
@@ -738,26 +754,44 @@ function saswp_schema_output() {
                             break;
                         
                             case 'JobPosting':
-                                                                                   
+                                                                                                                                                               
+                                // 1. Ensure $input1 is an array so we don't crash on existing string values
+                                if ( ! isset($input1) || ! is_array($input1) ) {
+                                    $input1 = array();
+                                }
+
                                 $input1['@context']                        = saswp_context_url();
                                 $input1['@type']                           = 'JobPosting';
-                                $input1['@id']                             = saswp_get_permalink().'#JobPosting';                                                          
-                                $input1['datePosted']                      = esc_html( $date);                                                                                                                                                
+                                $input1['@id']                             = saswp_get_permalink().'#JobPosting';                                                  
+                                
+                                // 2. Added Null Coalescing (?? '') to prevent esc_html() from fataling if $date is null on expired jobs
+                                $input1['datePosted']                      = ! empty( $date ) ? esc_html( $date ) : '';  
+                                
+                                // 3. Explicitly initialize parent arrays before setting nested keys
+                                $input1['hiringOrganization']              = array();
                                 $input1['hiringOrganization']['@type']     = 'Organization'; 
                                 $input1['hiringOrganization']['name']      = (isset($sd_data['sd_name']) && $sd_data['sd_name'] !='' )? $sd_data['sd_name'] : get_bloginfo(); 
+                                
+                                $input1['jobLocation']                     = array();
                                 $input1['jobLocation']['@type']            = 'Place';
-                                $input1['jobLocation']['address']['@type'] = 'PostalAddress';                                                                                   
-                                $input1['baseSalary']['@type']             = 'MonetaryAmount';                            
+                                $input1['jobLocation']['address']          = array();
+                                $input1['jobLocation']['address']['@type'] = 'PostalAddress';                                              
+                                
+                                $input1['baseSalary']                      = array();
+                                $input1['baseSalary']['@type']             = 'MonetaryAmount';  
+                                $input1['baseSalary']['value']             = array();                            
                                 $input1['baseSalary']['value']['@type']    = 'QuantitativeValue'; 
-                                $input1['estimatedSalary']['@type']        = 'MonetaryAmount';                            
-                                $input1['estimatedSalary']['value']['@type']    = 'QuantitativeValue';     
+                                
+                                $input1['estimatedSalary']                 = array();
+                                $input1['estimatedSalary']['@type']        = 'MonetaryAmount';   
+                                $input1['estimatedSalary']['value']        = array();                           
+                                $input1['estimatedSalary']['value']['@type'] = 'QuantitativeValue';     
 
                                 $input1 = apply_filters('saswp_modify_jobposting_schema_output', $input1 );
 
                                 $input1 = saswp_get_modified_markup($input1, $schema_type, $schema_post_id, $schema_options);
                                 
                                 if($modified_schema == 1){
-                                    
                                     $input1 = saswp_job_posting_schema_markup($schema_post_id, get_the_ID(), $all_post_meta);
                                 }
 
@@ -2642,7 +2676,7 @@ function saswp_schema_output() {
                         
                             case 'VideoObject':
                                 
-                                $video_links      = saswp_get_video_metadata();  
+                                $video_links      = saswp_get_video_metadata(); 
                                 $description = saswp_get_the_excerpt();
 
                                 if(!$description){
@@ -2835,7 +2869,43 @@ function saswp_schema_output() {
                                 
                                 }elseif($business_type){
                                     
-                                    $local_business = $business_type;        
+                                    $local_business = $business_type;  
+
+                                    $sub_schema_array       =   [
+                                        'animalshelter'                 => 'AnimalShelter',
+                                        'automotivebusiness'            => 'AutomotiveBusiness',
+                                        'childcare'                     => 'ChildCare',
+                                        'dentist'                       => 'Dentist',
+                                        'drycleaningorlaundry'          => 'DryCleaningOrLaundry',
+                                        'emergencyservice'              => 'EmergencyService',
+                                        'employmentagency'              => 'EmploymentAgency',
+                                        'entertainmentbusiness'         => 'EntertainmentBusiness',
+                                        'financialservice'              => 'FinancialService',
+                                        'foodestablishment'             => 'FoodEstablishment',
+                                        'governmentoffice'              => 'GovernmentOffice',
+                                        'healthandbeautybusiness'       => 'HealthAndBeautyBusiness',
+                                        'homeandconstructionbusiness'   => 'HomeAndConstructionBusiness',
+                                        'internetcafe'                  => 'InternetCafe',
+                                        'legalservice'                  => 'LegalService',
+                                        'library'                       => 'Library',
+                                        'lodgingbusiness'               => 'LodgingBusiness',
+                                        'medicalbusiness'               => 'MedicalBusiness',
+                                        'professionalservice'           => 'ProfessionalService',
+                                        'radiostation'                  => 'RadioStation',
+                                        'realestateagent'               => 'RealEstate Agent',
+                                        'recyclingcenter'               => 'RecyclingCenter',
+                                        'selfstorage'                   => 'SelfStorage',
+                                        'shoppingcenter'                => 'ShoppingCenter',
+                                        'sportsactivitylocation'        => 'SportsActivityLocation',
+                                        'store'                         => 'Store',
+                                        'televisionstation'             => 'TelevisionStation',
+                                        'touristinformationcenter'      => 'TouristInformationCenter',
+                                        'travelagency'                  => 'TravelAgency',
+                                    ];
+
+                                    if ( ! empty( $sub_schema_array[ $local_business ] ) ) {
+                                        $local_business = $sub_schema_array[ $local_business ];     
+                                    }      
                                 
                                 }else{
                                     $local_business = 'LocalBusiness';
@@ -3060,6 +3130,24 @@ function saswp_schema_output() {
                                 }
 
                                 $input1 = apply_filters( 'saswp_modify_place_final_schema_output', $input1 );
+                                
+                            break;
+
+                            case 'EventVenue':
+                                                                                    
+                                $input1['@context']                     = saswp_context_url();
+                                $input1['@type']                        = 'EventVenue';                                 
+
+                                $input1 = apply_filters('saswp_modify_eventvenue_schema_output', $input1 );
+
+                                $input1 = saswp_get_modified_markup( $input1, $schema_type, $schema_post_id, $schema_options );
+                                
+                                if ( $modified_schema == 1 ) {
+                                    
+                                    $input1 = saswp_eventvenue_schema_markup( $schema_post_id, get_the_ID(), $all_post_meta );
+                                }
+
+                                $input1 = apply_filters( 'saswp_modify_eventvenue_final_schema_output', $input1 );
                                 
                             break;
 
@@ -3728,11 +3816,31 @@ function saswp_woocommerce_category_schema() {
 			while( $category_loop->have_posts() ): $category_loop->the_post();
                 
                         $category_posts = array();
-                        $category_posts['@type']       = 'ListItem';
-                        $category_posts['position']    = $i;
+                
                         if ( isset( $sd_data['saswp_woocommerce_archive_list_type']) && $sd_data['saswp_woocommerce_archive_list_type'] == 'ItemList'){
+                            $category_posts['@type']       = 'ListItem';
+                            $category_posts['position']    = $i;
                             $category_posts['url'] = saswp_get_permalink();
+                        } else if ( isset( $sd_data['saswp_woocommerce_archive_list_type']) && $sd_data['saswp_woocommerce_archive_list_type'] == 'OfferCatalog'){
+                            
+                            if ( function_exists( 'wc_get_product' ) ) {
+                                $product_object = wc_get_product(get_the_ID() ); 
+                 
+                                if( is_object( $product_object ) ) {
+
+                                    $category_posts['@type']                     =   'Offer';
+                                    $category_posts['itemOffered']['@type']      =   'Product';
+                                    $category_posts['itemOffered']['name']       =   $product_object->get_name();
+                                    $category_posts['price']                     =   $product_object->get_price();
+                                    $category_posts['priceCurrency']             =   get_woocommerce_currency();
+                                    $category_posts['url']                       =   $product_object->get_permalink();
+
+                                }
+                            }
+                            
                         }else{
+                            $category_posts['@type']       = 'ListItem';
+                            $category_posts['position']    = $i;
     			            $category_posts['item']        = $service->saswp_schema_markup_generator('Product');
                             if ( ! empty( $product_schema_id) ) {
                                 $category_posts['item'] = saswp_append_fetched_reviews($category_posts['item'], $product_schema_id);
@@ -3767,9 +3875,20 @@ function saswp_woocommerce_category_schema() {
                 
                 if($list_item){                    
                     
+                    $list_type  =   'ItemList';
+                    if ( isset( $sd_data['saswp_woocommerce_archive_list_type']) && $sd_data['saswp_woocommerce_archive_list_type'] == 'OfferCatalog') {
+                        $list_type  = 'OfferCatalog';       
+                    }
+
                     $item_list_schema['@context']        = saswp_context_url();
-                    $item_list_schema['@type']           = 'ItemList';    
-                    $item_list_schema['@id']             = saswp_get_category_link($term->term_id).'#ItemList';    
+                    $item_list_schema['@type']           = $list_type;    
+                    $item_list_schema['@id']             = saswp_get_category_link($term->term_id).'#'.$list_type; 
+
+                    if ( isset( $sd_data['saswp_woocommerce_archive_list_type']) && $sd_data['saswp_woocommerce_archive_list_type'] == 'OfferCatalog') {
+                        if ( ! empty( $term->name ) ) {
+                            $item_list_schema['name']             = $term->name; 
+                        }       
+                    }   
 
                     if(saswp_has_slash($current_url) ) {
                         $item_list_schema['url'] =  saswp_get_category_link($term->term_id);    
@@ -3779,7 +3898,7 @@ function saswp_woocommerce_category_schema() {
                     
                     $item_list_schema['itemListElement'] = $list_item;
                 }
-                                                                                
+                                                                             
 		return $item_list_schema;
                 
 	endif;
@@ -3904,7 +4023,7 @@ function saswp_archive_output() {
     
 	if ( isset( $sd_data['saswp_archive_schema'] ) && $sd_data['saswp_archive_schema'] == 1 ) {
                     
-	    if ( ( is_category() || is_tag() || is_tax() ) && ! $product_cat ) {
+	    if ( ( is_category() || is_tag() || is_tax() || is_post_type_archive() ) && ! $product_cat ) {
             		                                   
                 $i = 1;
                 $category_loop = new WP_Query( $query_string );                
@@ -3923,23 +4042,49 @@ function saswp_archive_output() {
 
                 wp_reset_postdata();                                                
                 
-		        $category 		= get_queried_object(); 		
+		        $category 		= get_queried_object();
+
+
 		
                 if ( is_object( $category ) ) {
-                    
-                $category_id 		= intval( $category->term_id ); 
-                $category_link 		= get_category_link( $category_id );
-		        $category_link      = get_term_link( $category_id );
-                $category_headline 	= single_cat_title( '', false );	
+                
+                $category_id        =   0;
+                $category_link      =   '';
+                $category_headline  =   '';
+
+                if ( is_category() || is_tag() || is_tax() ) {
+                    $category_id        = intval( $category->term_id ); 
+                    $category_link      = get_category_link( $category_id );
+                    $category_link      = get_term_link( $category_id );
+                    $category_headline  = single_cat_title( '', false );
+                } elseif ( is_post_type_archive() ) {
+                    $post_type = get_query_var( 'post_type' );
+
+                    if ( is_array($post_type) ) {
+                        $post_type = reset($post_type);
+                    }
+
+                    $category_link = get_post_type_archive_link( $post_type );
+                    $category_headline = post_type_archive_title( '', false );
+
+                }	
                 
                 if ( $category_posts ) {
                     
+                    $cat_description    =   '';
+                    if ( $category_id > 0 ) {
+                        $cat_term       =   get_term( $category_id );
+                        if ( is_object( $cat_term ) && ! empty( $cat_term ) ) {
+                            $cat_description    =   isset( $cat_term->description ) ? wp_strip_all_tags( $cat_term->description ) : '';
+                        }
+                    }
+
                     $collection_page = array(
                         '@context' 		=> saswp_context_url(),
                         '@type' 		=> "CollectionPage",
                         '@id' 		    => $category_link.'#CollectionPage',
                         'headline' 		=> $category_headline,
-                        'description' 	=> wp_strip_all_tags( get_term( $category_id )->description ),
+                        'description' 	=> $cat_description,
                         'url'		 	=> $category_link,				
                         'hasPart' 		=> $category_posts
                     );
@@ -3994,7 +4139,7 @@ function saswp_archive_output() {
                         '@type' 		=> "Blog",
                         '@id' 		    => $category_link.'#Blog',
                         'headline' 		=> $category_headline,
-                        'description' 	=> wp_strip_all_tags( get_term( $category_id )->description ),
+                        'description' 	=> $cat_description,
                         'url'		 	=> $category_link,
                         'blogPost' 		=> $category_posts
                     );
@@ -4283,10 +4428,10 @@ function saswp_contact_page_output() {
 function saswp_site_navigation_output() {
             
     global $sd_data;
-    $input = array();    
+    $input = array();  
 
     $navObj = array();          
-                               
+                                   
     if ( isset( $sd_data['saswp_site_navigation_menu']) ) {
         
         $menu_id   = $sd_data['saswp_site_navigation_menu'];
@@ -4294,23 +4439,44 @@ function saswp_site_navigation_output() {
         $menu_id    = apply_filters('saswp_modify_menu_id', $menu_id);
         
         $menuItems = get_transient('saswp_nav_menu'.$menu_id);
-                
-        if(!$menuItems){
-            $menuItems = wp_get_nav_menu_items($menu_id);
+
+        if( ! $menuItems ){
+            
+            $raw_items = wp_get_nav_menu_items($menu_id);
+            $menuItems = array(); 
+
+            if ( ! empty( $raw_items ) && is_array( $raw_items ) ) {
+                foreach ( $raw_items as $item ) {
+                    
+                    $menu_data = array(
+                        'id'         => $item->ID,
+                        'type'       => $item->type,
+                        'url'        => $item->url,
+                        'title'      => $item->title
+                    );
+
+                    if ( ! empty( $item->attr_title ) ) {
+                        $menu_data['attr_title'] = $item->attr_title;
+                    }
+
+                    $menuItems[] = (object) $menu_data; 
+                }
+            }
+
             set_transient('saswp_nav_menu'.$menu_id, $menuItems);
         }
         
         $menu_name = wp_get_nav_menu_object($menu_id);
         if ( ! empty( $menu_name) && !empty($menu_name->name) ) {
-			$menu_name = $menu_name->name;
-		}else{
-			$menu_name = "";
-		}
+            $menu_name = $menu_name->name;
+        }else{
+            $menu_name = "";
+        }
 
         $current_post_language = apply_filters( 'wpml_post_language_details', NULL);
-                                     
+                                             
         if ( ! empty( $menuItems) ) {
-           
+            
                 foreach( $menuItems as $items){
 
                         if ( isset( $items->type) && $items->type == 'wpml_ls_menu_item'){
@@ -4336,7 +4502,7 @@ function saswp_site_navigation_output() {
                           );
                         }
 
-                }                                                                                                                                                                                   
+                }                                                                                                                                                                                                                                                                                                
             }
             
             if($navObj){
@@ -4346,7 +4512,7 @@ function saswp_site_navigation_output() {
 
             }
             
-    }                                                
+    }                                              
                                 
     return apply_filters('saswp_modify_sitenavigation_output', $input);
 }  

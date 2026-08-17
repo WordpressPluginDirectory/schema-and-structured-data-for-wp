@@ -15,6 +15,12 @@ jQuery(document).ready(function($){
       $(".saswp-business-type-tr").show();
     }); 
   }
+  if(busines_stype == 'CustomSchema'){
+    $(document).ready(function(){
+      $(".saswp-custom-schema-tr").show();
+      $(".saswp-schema-modify-section").hide();
+    }); 
+  }
 
 // home page title start
   //add the home title name
@@ -673,10 +679,28 @@ jQuery(document).ready(function($){
          }else{
          $(".saswp-schema-modify-section").show();      
          }
+        if(schematype == 'CollectionPage'){     
+            $(".saswp-schema-modify-section").hide();  
+            $(".saswp-collection-page-text-field-tr").show();  
+            $(".saswp-option-table-class tr").find('select').attr('disabled', false); 
+            $(".saswp-collection-page-item-type-list").change();                
+          }else{
+            $(".saswp-schema-modify-section").show();    
+        }
          if(schematype == 'BreadCrumbs'){  
           $(".saswp-schema-modify-section").hide();  
           }else{
           $(".saswp-schema-modify-section").show();      
+          }
+          if(schematype == 'ItemList' || schematype == 'CustomSchema'){  
+          $(".saswp-schema-modify-section").hide();  
+          }else{
+          $(".saswp-schema-modify-section").show();      
+          }
+          if(schematype == 'CustomSchema'){
+              $(".saswp-custom-schema-tr").show();
+          }else{
+              $(".saswp-custom-schema-tr").hide();
           }
         if(schematype == 'FAQ'){
           $(".saswp-enable-faq-markup-class").parent().parent().show();
@@ -796,11 +820,23 @@ jQuery(document).ready(function($){
               }else{
                 $(".saswp-schema-modify-section").show();    
               }
+            if(schematype == 'CollectionPage'){     
+                $(".saswp-schema-modify-section").hide();  
+                $(".saswp-collection-page-text-field-tr").show();  
+                $(".saswp-option-table-class tr").find('select').attr('disabled', false);                 
+              }else{
+                $(".saswp-schema-modify-section").show();    
+              }
              if(schematype == 'Event'){            
                 $(".saswp-event-text-field-tr").show();
                 $(".saswp-option-table-class tr").find('select').attr('disabled', false);
              }
              if(schematype == 'BreadCrumbs'){  
+              $(".saswp-schema-modify-section").hide();  
+              }else{
+              $(".saswp-schema-modify-section").show();      
+              }
+              if(schematype == 'ItemList'){  
               $(".saswp-schema-modify-section").hide();  
               }else{
               $(".saswp-schema-modify-section").show();      
@@ -2638,6 +2674,16 @@ jQuery(document).ready(function($){
                             }else{
                               $("#saswp-foxizcore").val(0);                                          
                             }
+                      break;
+
+                    case 'saswp-divisupremepro-checkbox':
+                           saswp_compatibliy_notes(current, id); 
+                            if ($(this).is(':checked')) {              
+                              $("#saswp-divisupremepro").val(1);                                
+                            }else{
+                              $("#saswp-divisupremepro").val(0);                                          
+                            }
+                            
                       break;
                                        
                       default:
@@ -4563,19 +4609,48 @@ $('#saswp-rbcc-ar-f-unit').change(function(e){
     });
  });
  
- $(document).on('click', '.saswp-tools-tab-nav', function(e){
+ let saswpToolsSubTabIds = [
+    'saswp-advanced-sub-tab',
+    'saswp-migration-sub-tab',
+    'saswp-import-export-sub-tab',
+    'saswp-misc-sub-tab',
+    'saswp-translation-sub-tab',
+    'saswp-license-sub-tab'
+ ];
+
+ function saswpActivateToolsSubTab( divId ){
+    document.documentElement.setAttribute( 'data-saswp-tools-tab', divId );
+
+    $('.saswp-tools-tab-nav').removeClass('saswp-global-selected');
+    $('.saswp-tools-tab-nav[data-div-id="'+divId+'"]').addClass('saswp-global-selected');
+
+    if ( history.replaceState ) {
+        history.replaceState( null, '', '#'+divId );
+    } else {
+        window.location.hash = divId;
+    }
+ }
+
+ $(document).on('click', '.saswp-tools-tab-nav[data-div-id]', function(e){
+
+    let divId = $(this).attr('data-div-id');
+
+    if ( $.inArray( divId, saswpToolsSubTabIds ) === -1 ) {
+        return;
+    }
 
     e.preventDefault();
-    let divId   =   $(this).attr('data-div-id');
-    $('.saswp-tools-tab-nav').removeClass('saswp-global-selected');
-    $(this).addClass('saswp-global-selected');
-    $('#saswp-advanced-sub-tab').hide();
-    $('#saswp-migration-sub-tab').hide();
-    $('#saswp-import-export-sub-tab').hide();
-    $('#saswp-misc-sub-tab').hide();
-    $('#saswp-translation-sub-tab').hide();
-    $('#saswp-license-sub-tab').hide();
-    $('#'+divId).show();
+    saswpActivateToolsSubTab( divId );
 
  });
+
+ // Keep the highlighted nav-link in sync on initial load (visibility is already
+ // correct via the head script + CSS attribute selectors above).
+ if ( window.location.hash ) {
+    let saswpInitHash = window.location.hash.substring(1);
+    if ( $.inArray( saswpInitHash, saswpToolsSubTabIds ) !== -1 ) {
+        $('.saswp-tools-tab-nav').removeClass('saswp-global-selected');
+        $('.saswp-tools-tab-nav[data-div-id="'+saswpInitHash+'"]').addClass('saswp-global-selected');
+    }
+ }
 });

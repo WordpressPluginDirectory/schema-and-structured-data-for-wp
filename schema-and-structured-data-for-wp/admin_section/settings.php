@@ -98,7 +98,7 @@ function saswp_admin_interface_render() {
 		settings_errors();               
 	}
         
-        $tab = saswp_get_tab('general', apply_filters( 'saswp_extra_settings_tab', array('general', 'amp','review','compatibility','email_schema', 'tools','premium_features', 'services', 'support') ));            
+        $tab = saswp_get_tab('general', apply_filters( 'saswp_extra_settings_tab', array('general', 'amp','review','compatibility','email_schema', 'tools','premium_features', 'services', 'support', 'ai_settings') ));            
 	
 	?>
 <div class="saswp-settings-container">
@@ -398,7 +398,8 @@ function saswp_admin_interface_render() {
                                         '<a href="' . esc_url(saswp_admin_link('tools')) . '" class="nav-tab ' . esc_attr( $tab == 'tools' ? 'nav-tab-active' : '') . '"><span class=""></span> ' . esc_html__( 'Advanced', 'schema-and-structured-data-for-wp' ) . '</a>',                                       
                                         '<a href="' . esc_url( admin_url( 'admin.php?page=structured_data_options&tab=premium_features' ) ).'" data-extmgr="'. ( class_exists('SASWPPROExtensionManager')? "yes": "no" ).'" class="nav-tab ' . esc_attr( $tab == 'premium_features' ? 'nav-tab-active' : '') . '"><span class=""></span> '.$license_alert.'' . esc_html__( 'Premium Features', 'schema-and-structured-data-for-wp' ) . '</a>',
                                         '<a href="' . esc_url(saswp_admin_link('services')) . '" class="nav-tab ' . esc_attr( $tab == 'services' ? 'nav-tab-active' : '') . '"><span class=""></span> ' . esc_html__( 'Services', 'schema-and-structured-data-for-wp' ) . '</a>',
-                                        '<a href="' . esc_url(saswp_admin_link('support')) . '" class="nav-tab ' . esc_attr( $tab == 'support' ? 'nav-tab-active' : '') . '"><span class=""></span> ' . esc_html__( 'Support', 'schema-and-structured-data-for-wp' ) . '</a>'                                        
+                                        '<a href="' . esc_url(saswp_admin_link('support')) . '" class="nav-tab ' . esc_attr( $tab == 'support' ? 'nav-tab-active' : '') . '"><span class=""></span> ' . esc_html__( 'Support', 'schema-and-structured-data-for-wp' ) . '</a>',                                        
+                                        '<a href="' . esc_url(saswp_admin_link('ai_settings')) . '" class="nav-tab ' . esc_attr( $tab == 'ai_settings' ? 'nav-tab-active' : '') . '"><span class=""></span> ' . esc_html__( 'AI Settings', 'schema-and-structured-data-for-wp' ) . '</a>'                                        
                                 ), $tab);
                                 
                                 foreach( $tab_links as $link_escaped){
@@ -461,13 +462,17 @@ function saswp_admin_interface_render() {
                         
                             echo '<div id="saswp-tools-tabs" style="margin-top: 10px;">';
 
-                            echo '<a class="saswp-tools-tab-nav saswp-global-selected" href="#" data-div-id="saswp-advanced-sub-tab">'. esc_html__( 'Advanced', 'schema-and-structured-data-for-wp' ) .'</a> | <a class="saswp-tools-tab-nav" href="#" data-div-id="saswp-migration-sub-tab">'. esc_html__( 'Migration', 'schema-and-structured-data-for-wp' ) .'</a> | <a class="saswp-tools-tab-nav" href="#" data-div-id="saswp-import-export-sub-tab">'. esc_html__( 'Import / Export', 'schema-and-structured-data-for-wp' ) .'</a> | <a class="saswp-tools-tab-nav" href="#" data-div-id="saswp-misc-sub-tab">'. esc_html__( 'Misc', 'schema-and-structured-data-for-wp' ) .'</a> | <a href="#" class="saswp-tools-tab-nav" data-div-id="saswp-translation-sub-tab">'. esc_html__( 'Translation Panel', 'schema-and-structured-data-for-wp' ) .'</a>';
+                            echo '<a class="saswp-tools-tab-nav saswp-global-selected" href="#saswp-advanced-sub-tab" data-div-id="saswp-advanced-sub-tab">'. esc_html__( 'Advanced', 'schema-and-structured-data-for-wp' ) .'</a> | '
+                               . '<a class="saswp-tools-tab-nav" href="#saswp-migration-sub-tab" data-div-id="saswp-migration-sub-tab">'. esc_html__( 'Migration', 'schema-and-structured-data-for-wp' ) .'</a> | '
+                               . '<a class="saswp-tools-tab-nav" href="#saswp-import-export-sub-tab" data-div-id="saswp-import-export-sub-tab">'. esc_html__( 'Import / Export', 'schema-and-structured-data-for-wp' ) .'</a> | '
+                               . '<a class="saswp-tools-tab-nav" href="#saswp-misc-sub-tab" data-div-id="saswp-misc-sub-tab">'. esc_html__( 'Misc', 'schema-and-structured-data-for-wp' ) .'</a> | '
+                               . '<a class="saswp-tools-tab-nav" href="#saswp-translation-sub-tab" data-div-id="saswp-translation-sub-tab">'. esc_html__( 'Translation Panel', 'schema-and-structured-data-for-wp' ) .'</a>';
 
-                            if(saswp_ext_installed_status() ) {
+                            if ( saswp_ext_installed_status() ) {
                                 echo ' | <a class="saswp-tools-tab-nav" href="' . esc_url( admin_url( 'admin.php?page=structured_data_options&tab=premium_features' ) ) . '" data-div-id="saswp-license-sub-tab">' . esc_html__( 'License', 'schema-and-structured-data-for-wp' ) . '</a>';
                             }
-                            
-                            echo'</div> ';
+
+                            echo '</div> ';
 			     // Status
                         
 			        do_settings_sections( 'saswp_tools_section' );	// Page slug
@@ -486,6 +491,11 @@ function saswp_admin_interface_render() {
                         echo "<div class='saswp-support' ".( $tab != 'support' ? 'style="display:none;"' : '').">";
 			     // Status                        
 			        do_settings_sections( 'saswp_support_section' );	// Page slug
+			echo "</div>";
+
+                        echo "<div class='saswp-ai_settings' ".( $tab != 'ai_settings' ? 'style="display:none;"' : '').">";
+			     // Status                        
+			        do_settings_sections( 'saswp_ai_settings_section' );	// Page slug
 			echo "</div>";
 
                         apply_filters('saswp_extra_settings_tab_div', $tab);
@@ -616,6 +626,16 @@ function saswp_settings_init() {
                             'saswp_services_callback',					// Callback
                             'saswp_services_section',							// Page slug
                             'saswp_services_section'							// Settings Section ID
+                    );
+                    
+                    add_settings_section('saswp_ai_settings_section', __return_false(), '__return_false', 'saswp_ai_settings_section');
+                
+                    add_settings_field(
+                            'saswp_ai_settings',								// ID
+                            '',			// Title
+                            'saswp_ai_settings_callback',					// Callback
+                            'saswp_ai_settings_section',							// Page slug
+                            'saswp_ai_settings_section'							// Settings Section ID
                     );
 }
 
@@ -1063,6 +1083,7 @@ function saswp_general_page_callback() {
                         'options' => array(                                
                                 'DetailedItemList'      => 'DetailedItemList',
                                 'ItemList'              => 'ItemList',                                          
+                                'OfferCatalog'          => 'OfferCatalog',                                          
                         )
                 );
 
@@ -4422,6 +4443,19 @@ function saswp_compatibility_page_callback() {
                                     'name' => 'sd_data[saswp-foogallery]',                             
                         )
         ); 
+
+        $divisupremepro   = array(
+                'label'  => 'Divi Supreme Pro',
+                'id'     => 'saswp-divisupremepro-checkbox',                        
+                'name'   => 'saswp-divisupremepro-checkbox',
+                'type'   => 'checkbox',
+                'class'  => 'checkbox saswp-checkbox',
+                'note'   => saswp_get_field_note('divisupremepro'),
+                'hidden' => array(
+                        'id'   => 'saswp-divisupremepro',
+                        'name' => 'sd_data[saswp-divisupremepro]',                             
+                )
+        );
                 
         if(!is_plugin_active('woocommerce-compatibility-for-schema/woocommerce-compatibility-for-schema.php') ) {
 
@@ -4497,6 +4531,7 @@ function saswp_compatibility_page_callback() {
                 $webfaq10['note']             = $faq_addon_req;
                 $enfold['note']               = $faq_addon_req;
                 $jolifaq['note']              = $faq_addon_req;
+                $divisupremepro['note']       = $faq_addon_req;
 
          }
          if(!is_plugin_active('reviews-for-schema/reviews-for-schema.php') ) {
@@ -4711,6 +4746,7 @@ function saswp_compatibility_page_callback() {
                 $easy_liveblogs,
                 $foogallery,
                 $foxizcore,
+                $divisupremepro
                 
 	);  
                 
@@ -5086,6 +5122,7 @@ function saswp_enqueue_saswp_select2_js( $hook ) {
         }
                 
         wp_enqueue_style('saswp-select2-style', SASWP_PLUGIN_URL. 'admin_section/css/select2.min.css' , false, SASWP_VERSION);
+        wp_enqueue_style('saswp-select2-wp-style', SASWP_PLUGIN_URL. 'admin_section/css/saswp-select2-wp.css', array('saswp-select2-style'), SASWP_VERSION . '.5');
         wp_enqueue_script('select2', SASWP_PLUGIN_URL. 'admin_section/js/select2.min.js', array( 'jquery'), SASWP_VERSION, true);
         wp_enqueue_script('select2-extended-script', SASWP_PLUGIN_URL. 'admin_section/js/select2-extended.min.js', array( 'jquery' ), SASWP_VERSION, true);
         	                                        
@@ -5226,3 +5263,25 @@ function saswp_dequeue_publishpress_scripts( $scripts ) {
         }
     }
 };
+
+function saswp_enqueue_tools_tab_state_script( $hook ) {
+
+    if ( $hook !== 'saswp_page_structured_data_options' ) {
+        return;
+    }
+
+    // Empty src registers a handle purely for attaching inline JS.
+    // $in_footer = false prints it in <head>, before <body> is parsed.
+    wp_register_script( 'saswp-tools-tab-state', '', array(), SASWP_VERSION, false );
+    wp_enqueue_script( 'saswp-tools-tab-state' );
+
+    $inline_js = "(function(){
+        var ids = ['saswp-advanced-sub-tab','saswp-migration-sub-tab','saswp-import-export-sub-tab','saswp-misc-sub-tab','saswp-translation-sub-tab','saswp-license-sub-tab'];
+        var hash = window.location.hash ? window.location.hash.substring(1) : '';
+        var target = ( ids.indexOf( hash ) !== -1 ) ? hash : 'saswp-advanced-sub-tab';
+        document.documentElement.setAttribute( 'data-saswp-tools-tab', target );
+    })();";
+
+    wp_add_inline_script( 'saswp-tools-tab-state', $inline_js );
+}
+add_action( 'admin_enqueue_scripts', 'saswp_enqueue_tools_tab_state_script' );

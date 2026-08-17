@@ -4676,6 +4676,11 @@ function saswp_get_fields_by_schema_type( $schema_id = null, $condition = null, 
                                 'id'    => 'saswp_event_schema_performer_name_'.$schema_id,
                                 'type'  => 'text',                                
                         ),
+                        array(
+                                'label' => esc_html__( 'Performer Type', 'schema-and-structured-data-for-wp' ),
+                                'id'    => 'saswp_event_schema_performer_type_'.$schema_id,
+                                'type'  => 'text',                                
+                        ),
                     );
                     break;
                 
@@ -4715,6 +4720,12 @@ function saswp_get_fields_by_schema_type( $schema_id = null, $condition = null, 
                             'type' => 'textarea',
                             'default' => saswp_strip_all_tags(get_the_excerpt())
                     ) ,
+                    array(
+                            'label'   => esc_html__( 'Article Body', 'schema-and-structured-data-for-wp' ),
+                            'id'      => 'saswp_tech_article_body_'.$schema_id,
+                            'type'    => 'textarea',
+                            'default' => is_object( $post ) ? saswp_strip_all_tags( $post->post_content ) : ''
+                    ),
                     array(
                             'label'   => esc_html__( 'hasPart', 'schema-and-structured-data-for-wp' ),
                             'id'      => 'saswp_tech_article_haspart_'.$schema_id,
@@ -7896,7 +7907,7 @@ function saswp_get_fields_by_schema_type( $schema_id = null, $condition = null, 
                             'id'      => 'saswp_video_object_organization_logo_'.$schema_id,
                             'type'    => 'media',
                             'default' => isset($sd_data['sd_logo']['url']) ? $sd_data['sd_logo']['url'] : ''
-                    ),    
+                    ),
                    );
                     break;
                 
@@ -12630,6 +12641,42 @@ function saswp_get_fields_by_schema_type( $schema_id = null, $condition = null, 
                         );
                 break;
 
+                case 'EventVenue':
+                    
+                    $meta_field = array(
+                            array(
+                                    'label' => esc_html__( 'Name', 'schema-and-structured-data-for-wp' ),
+                                    'id' => 'saswp_eventvenue_schema_name_'.$schema_id,
+                                    'type' => 'text',                                
+                            ),
+                            array(
+                                    'label' => esc_html__( 'Street Address', 'schema-and-structured-data-for-wp' ),
+                                    'id' => 'saswp_eventvenue_schema_streetaddress_'.$schema_id,
+                                    'type' => 'text',                                
+                            ),
+                            array(
+                                    'label' => esc_html__( 'Locality', 'schema-and-structured-data-for-wp' ),
+                                    'id' => 'saswp_eventvenue_schema_locality_'.$schema_id,
+                                    'type' => 'text',                                
+                            ),
+                            array(
+                                    'label' => esc_html__( 'Region', 'schema-and-structured-data-for-wp' ),
+                                    'id' => 'saswp_eventvenue_schema_region_'.$schema_id,
+                                    'type' => 'text',                                
+                            ),
+                            array(
+                                    'label' => esc_html__( 'PostalCode', 'schema-and-structured-data-for-wp' ),
+                                    'id' => 'saswp_eventvenue_schema_postalcode_'.$schema_id,
+                                    'type' => 'text',                                
+                            ),
+                            array(
+                                    'label' => esc_html__( 'Country', 'schema-and-structured-data-for-wp' ),
+                                    'id'    => 'saswp_eventvenue_schema_country_'.$schema_id,
+                                    'type'  => 'text',                                
+                            ),
+                        );
+                break;
+
                 case 'Game':
                     
                     $meta_field = array(
@@ -13006,6 +13053,24 @@ function saswp_get_fields_by_schema_type( $schema_id = null, $condition = null, 
                             )                                                                              
                         );                                                              
                         
+                        break;
+
+                    case 'CollectionPage':
+                        $meta_field = array(
+                            array(
+                                'label'      => esc_html__( 'ID', 'schema-and-structured-data-for-wp' ),
+                                'id'         => 'saswp_collection_page_id_'.$schema_id,
+                                'type'       => 'text',
+                                'default'    => 'CollectionPage'   
+                            ),
+                            array(
+                                'label' => esc_html__( 'Headline', 'schema-and-structured-data-for-wp' ),
+                                'id' => 'saswp_collection_page_headline_'.$schema_id,
+                                'type' => 'text',
+                                'default' => saswp_get_the_title(),
+                            ),
+                        );
+
                         break;
 
                 default:

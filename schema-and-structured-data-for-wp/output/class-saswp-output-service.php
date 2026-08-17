@@ -5255,6 +5255,9 @@ Class SASWP_Output_Service{
                     if ( isset( $custom_fields['saswp_event_schema_image']) ) {
                         $input1['image'] =    $custom_fields['saswp_event_schema_image'];
                     }
+                    if ( isset( $custom_fields['saswp_event_schema_performer_type']) ) {
+                        $input1['performer']['@type'] =   $custom_fields['saswp_event_schema_performer_type'];
+                    }   
                     if ( isset( $custom_fields['saswp_event_schema_performer_name']) ) {
                         $input1['performer']['name'] =    $custom_fields['saswp_event_schema_performer_name'];
                     }
@@ -5491,7 +5494,7 @@ Class SASWP_Output_Service{
                     }
                    
                     if ( ! empty( $custom_fields['saswp_tech_article_about']) && isset($custom_fields['saswp_tech_article_about']) ) {         
-                        $input1['about']['@type'] = 'Event';                   
+                        $input1['about']['@type'] = 'Thing';                   
                         $input1['about']['name'] = explode(',', $custom_fields['saswp_tech_article_about']);    
                     } 
                     
@@ -6912,6 +6915,7 @@ Class SASWP_Output_Service{
                     if ( isset( $custom_fields['saswp_video_object_embed_url']) && wp_http_validate_url($custom_fields['saswp_video_object_embed_url']) ) {
                      $input1['embedUrl']   =    saswp_validate_url($custom_fields['saswp_video_object_embed_url']);
                     }
+                    
                     if ( ! empty( $custom_fields['saswp_video_object_main_entity_id']) ) {
                         $input1['mainEntity']['@type'] =    'WebPage';
                         $input1['mainEntity']['@id'] =    $custom_fields['saswp_video_object_main_entity_id'];
@@ -9029,6 +9033,30 @@ Class SASWP_Output_Service{
 
                 break;
 
+                case 'EventVenue':
+
+                    if ( ! empty( $custom_fields['saswp_eventvenue_schema_name'] ) ) {
+                        $input1['name']         =   $custom_fields['saswp_eventvenue_schema_name'];
+                    }  
+                    $input1['address']['@type'] =   'PostalAddress';
+                    if ( ! empty( $custom_fields['saswp_eventvenue_schema_streetaddress'] ) ) {
+                        $input1['address']['streetAddress']         =   $custom_fields['saswp_eventvenue_schema_streetaddress'];
+                    }
+                    if ( ! empty( $custom_fields['saswp_eventvenue_schema_locality'] ) ) {
+                        $input1['address']['addressLocality']         =   $custom_fields['saswp_eventvenue_schema_locality'];
+                    }  
+                    if ( ! empty( $custom_fields['saswp_eventvenue_schema_region'] ) ) {
+                        $input1['address']['addressRegion']         =   $custom_fields['saswp_eventvenue_schema_region'];
+                    }
+                    if ( ! empty( $custom_fields['saswp_eventvenue_schema_postalcode'] ) ) {
+                        $input1['address']['postalCode']         =   $custom_fields['saswp_eventvenue_schema_postalcode'];
+                    }  
+                    if ( ! empty( $custom_fields['saswp_eventvenue_schema_country'] ) ) {
+                        $input1['address']['addressCountry']         =   $custom_fields['saswp_eventvenue_schema_country'];
+                    }  
+
+                break;
+
                 case 'Game':      
                       
                     if ( ! empty( $custom_fields['saswp_game_schema_id'] ) ) {
@@ -9218,6 +9246,15 @@ Class SASWP_Output_Service{
                         'query-input' => 'required name=search_term_string',
                     );
                 }
+                break;
+
+                case 'CollectionPage':
+                        if ( ! empty( $custom_fields['saswp_collection_page_id'] ) ) {
+                            $input1['@id'] = $custom_fields['saswp_collection_page_id'];
+                        }
+                        if ( ! empty( $custom_fields['saswp_collection_page_headline'] ) ) {
+                            $input1['headline'] = $custom_fields['saswp_collection_page_headline'];
+                        }   
                 break;
                
                      default:
@@ -9846,7 +9883,7 @@ Class SASWP_Output_Service{
                 $dw_qa['name']        = bbp_get_topic_title($post_id); 
                 $dw_qa['upvoteCount'] = bbp_get_topic_reply_count();    
                 $dw_qa['text']        = wp_strip_all_tags(bbp_get_topic_content());                                
-                $dw_qa['dateCreated'] = date_format(date_create(get_post_time( get_option( 'date_format' ), false, $post_id, true )), "Y-m-d\TH:i:s\Z");
+                $dw_qa['dateCreated'] = get_post_time('c', true, $post_id);
                                                                           
                 $dw_qa['author']      = array(
                                                  '@type' => 'Person',

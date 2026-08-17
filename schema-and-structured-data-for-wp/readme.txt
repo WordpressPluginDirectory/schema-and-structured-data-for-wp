@@ -2,9 +2,9 @@
 Contributors: magazine3
 Tags: Schema, Structured Data, Rich Snippets, SEO, AMP
 Requires at least: 4.5
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 5.6.20
-Stable tag: 1.56
+Stable tag: 1.64
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Schema & Structured Data adds Google Rich Snippets markup according to Schema.org guidelines to structure your site for SEO.
@@ -150,6 +150,57 @@ You can contact us from [here](http://structured-data-for-wp.com/contact-us/)
 
 == Changelog ==
 
+= 1.64 (17 August 2026) =
+* Fixed: PHP Warning in bbPress QAPage Schema When Generating dateCreated #2455
+* Fixed: Removed event field from about in techarticle schema #2458
+* Fixed: Archive page JSON-LD category description by using $cat_term instead of $cat #2459
+* Enhancement: articleBody Property Not Available for TechArticle Schema #2460
+* Enhancement: Improved select2 UI to match with WordPress 7.0 #2462
+* Tested Upto WordPress 7.1
+
+= 1.63 (27 July 2026) =
+* Feature: Added Option To Create Global Custom Schema via GUI with Code Input #2325
+* Feature: AI Integration for Automatic Schema Generation #2453
+* Fixed: PHP Deprecated Warning: Null Used as Array Offset in gutenberg.php (Line 412) #2456
+* Fixed: PHP Warning: Undefined Array Key "text" in output/markup.php on Line 376 #2457
+
+= 1.62 (13 July 2026) =
+* Fixed: Missing thumbnailUrl in VideoObject Schema When Modified Per Post, Even After Setting a Thumbnail #2445
+* Fixed: Custom breadcrumb warning #2445
+* Enhancement: Sub tabs in under parent Advanced tab should keep it's state on realod of page #2451
+
+= 1.61 (16 June 2026) =
+* Feature: Added EventVenue Schema #1804
+* Feature: Added BroadcastEvent to VideoObject Schema #2321
+* Fixed: Item List Schema Output Dropdown Too Narrow #2400
+* Enhancement: Added Performer Type in Event Schema #2443
+* Fixed: Yoast SEO Continuously Reindexes SASWP Reviews and Collections Post Types #2444
+
+= 1.60 (14 May 2026) =
+* Feature: Added Support for OfferCatalog Schema #2421
+* Feature: Added schema data duplicate feature #2328
+* Fixed: Elementor Pro Loops Breaks style when Schema is enabled #2435
+* Fixed: Vulnerability reported by Patch stack and researched by Mohamed Bassia
+
+= 1.59 (22 April 2026) =
+* Fixed: FAQ Blocks duplicating in Divi Builder #2430
+* Feature: Collection page schema not visible on ACF archive #2431
+* Fixed: Video Object schema custom thumbnail image not getting saved #2433
+* Feature: FAQ compatibility with Divi Supreme Pro #2434
+* Enhancement: Fixed incorrect schema type causing from professionalservice to ProfessionalService #2432
+
+= 1.58 (23 March 2026) =
+* Enhancement: FAQ classic editor improvement #2422
+* Fixed: PHP Warning: foreach() argument must be of type array|object #2424
+* Fixed: Unable to Edit FAQ in WordPress Editor After Recent Update (Schema Still Visible on Frontend) #2425
+
+= 1.57 (13 March 2026) =
+* Fixed: Fatal error on single-region job postings #2411
+* Enhancement: Fields Not Translating on Article Edit Page After Using Loco Translate #2412
+* Fixed: PHP Warning: unserialize(): Error at offset 0 of 1070 bytes #2415
+* Enhancement: Striped unused properties from _transient_saswp_nav_menu to reduce autoload load size #2416
+* Fixed: Lastet Version Causing Unicode in Title, Rankmath Compatibility issue #2420
+
 = 1.56 (06 March 2026) =
 * Enhancement: Product JSON-LD schema issues: incorrect data types and case sensitivity #2396
 * Fixed: ItemList feature not generating schema despite H3 tags #2397
@@ -256,89 +307,5 @@ You can contact us from [here](http://structured-data-for-wp.com/contact-us/)
 * Enhancement: Added filter hook for image attachment for custom url handling #2301
 * Enhancement: Added Support for mainEntityOfPage property in VideoObject schema #2302
 * Enhancement: Code improvement #2303
-
-= 1.45 (5 May 2025) =
-* Enhancement: Added about and sameAs property in WebPage schema #2049
-* Enhancement: Added the associatedMedia property in the NewsArticle schema #2216
-* Enhancement: Added new fields to LiveBlogPosting gutenberg block #2288
-* Fixed: Issue with ItemList schema on taxonomy #2289
-* Fixed: Tested with new version of wordpress i.e. 6.8v #2290
-* Enhancement: Added a contentLocation field in the NewsArticle schema #2291
-* Enhancement: Code improvement for image in the markup #2292
-* Enhancement: Fixed Incorrect upvoteCount/downvoteCount Output #2293
-
-= 1.44 (4 April 2025) =
-* Enhancement: Added Citation field in Blogposting schema #1946
-* Feature: Added Profilepage schema type #2065
-* Feature: Added CriticReview schema type #2100
-* Feature: Added Address Field for Product Seller Organizations #2203
-* Enhancement: Added Event fields in LiveBlogPosting gutenberg block #2277
-* Fixed: Live Blog Update date and time picker issue #2278
-* Enhancement: Added option for Embed of YouTube, X etc #2280
-* Enhancement: Live Blog Update image placement improvement for gutenberg block #2281
-* Enhancement: Live blog update UI improvement #2282
-* Enhancement: Live blog update gutenebrg block improvement #2283
-* Enhancement: Place new published live blog updates on top #2284
-* Enhancement: TimeZone display improvement to Live Blog Update on Frontend #2285
-
-
-= 1.43 (25 March 2025) =
-* Enhancement: Improvement in VacationRental schema properties #2109
-* Enhancement: Featured image of the latest article is automatically fetched in the NewsMediaOrganization schema #2214
-* Enhancement: Featured image of the latest article is automatically fetched in the NewsMediaOrganization schema #2214
-* Feature: DiscussionForumPosting Schema compatibility with BBPress Forum Within BuddyPress Group #2256
-* Fixed: Conflict with Yoast Seo helper #2262
-* Feature: Added a Gutenberg Block for LiveBlogPosting schema Update #2264
-* Fixed: LiveBlogPosting URL parameter placement issue #2265
-* Enhancement: Improvement in LiveBlogPosting schema properties #2266
-* Enhancement: Added time property LiveBlog Update in LiveBlogPosting schema #2269
-* Fixed: Location property issue in LiveBlogPosting #2270
-* Fixed: Improvement in global modification for author and editor for NewsArticle schema #2275
-
-= 1.42 (6 March 2025) =
-* Fixed: Resolved issue with Airbnb Rooms platform reviews #2179
-* Fixed: Resolved issue with TripAdvisor platform reviews #2225
-* Enhancement: Setting page UI Changes #2226
-* Fixed: Valid Through date issue while modifying post individually #2253
-* Feature: Added ImageGallery Schema type and made it's compatibility with FooGallery plugin  #2254
-* Feature: Added Location type attribute in LiveBlogPosting schema #2255
-* Fixed: Resolved issue with CreativeWork schema #2258
-* Feature: Added MediaGallery schema #2259
-* Fixed: Author image issue in schema markup #2261
-* Enhancement: Added Coverage Time in LiveBlogPosting schema  #2263
-* Fixed: Review collection nonce issue #2267
-
-= 1.41 (15 February 2025) =
-* Fixed: jQuery undefined issue #2086
-* Feature: Added compatibility with Easy Liveblogs plugin #2223
-* Feature: Added Q&A Schema Compatibility with wpForo #2234
-* Feature: Added new fields in NewsArticle schema #2238
-* Enhancemant: Existing Comments Assigned One-Star Rating After Activating Review Module #2241
-* Fixed: Deprecated Errors and Warnings #2242
-* Feature: Added new attributes to WebPage schema #2244
-* Fixed: PHP textdomain translation notices on WordPress 6.7 #2246
-* Fixed: context attribute is missing in Person schema #2249
-* Enhancement: Merchant Listing schema Invalid string length in field "name" #2250
-
-= 1.40 (17 January 2025) =
-* Feature: Added compatibility with translatepress plugin #2090
-* Enhancement: Added Weight Field to Product Schema with Support for Multiple Units #2221
-* Feature: Added compatibility with WPBakery page builder accordion #2228
-* Fixed: Houzz platform reviews compatibility issue #2229
-* Fixed: Homestars reviews compatibility issue #2230
-* Fixed: Code Improvement #2232
-* Fixed: Issue with creating new review collection #2233
-* Fixed: Deprecated error #2236
-* Enhancement: Fixed the format date time issue with timezone offset #2239
-
-= 1.39 (04 December 2024) =
-* Major Feature: Schema Template Builder #2138
-* Feature: Added Genre and Actor fields for TVSeries schema #2207
-* Fixed: Tested with new version of wordpress i.e. 6.7v #2209
-* Fixed: Fixed issue with FAQ repeater field #2215
-* Enhancement: Added some modification in VideoObject schema #2218
-* Fixed: PHP translation notices on WordPress 6.7 #2219
-* Fixed: PHP Notice releated to comment id #2220
-* Enhancement: Added hasCourseInatance attribute for LearnPress plugin compatibility #2224
 
 All changelog available on [GitHub](https://github.com/ahmedkaludi/schema-and-structured-data-for-wp/releases).

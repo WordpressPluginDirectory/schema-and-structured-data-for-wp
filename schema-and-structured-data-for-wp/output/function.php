@@ -331,6 +331,42 @@ function saswp_get_all_schema_markup_output() {
                 }
                                                                                                                                                                                                                               
             }
+            
+            $global_conditionals = saswp_get_all_schema_posts();
+            if ( ! empty( $global_conditionals ) && is_array( $global_conditionals ) ) {
+                foreach ( $global_conditionals as $g_cond ) {
+                    if ( isset( $g_cond['schema_type'] ) && $g_cond['schema_type'] === 'CustomSchema' ) {
+                        $g_post_id = $g_cond['post_id'];
+                        $g_custom_markup = get_post_meta($g_post_id, 'saswp_custom_schema_field', true);
+                        if ( $g_custom_markup ) {
+                            $cus_regex = '/\<script type\=\"application\/ld\+json\"\>/';
+                            preg_match( $cus_regex, $g_custom_markup, $match );
+                            
+                            if ( empty( $match ) ) {
+                                json_decode( $g_custom_markup );
+                                if ( json_last_error() === JSON_ERROR_NONE ) {
+                                    $custom_output .= '<script type="application/ld+json" class="saswp-custom-schema-markup-output">';                            
+                                    $custom_output .= preg_replace( '#</?script[^>]*>#i', '', $g_custom_markup );                            
+                                    $custom_output .= '</script>';
+                                }                                        
+                            }else{
+                                $regex = '/<script type=\"application\/ld\+json">(.*?)<\/script>/s';
+                                preg_match_all( $regex, $g_custom_markup, $matches );
+                                if ( ! empty( $matches) && isset($matches[1]) ) {
+                                    foreach ( $matches[1] as $value) {
+                                        json_decode($value);
+                                        if ( json_last_error() === JSON_ERROR_NONE ) {
+                                            $custom_output .= '<script type="application/ld+json" class="saswp-custom-schema-markup-output">';                            
+                                            $custom_output .= preg_replace( '#</?script[^>]*>#i', '', $value );                            
+                                            $custom_output .= '</script>';
+                                        }                            
+                                    }
+                                } 
+                            }
+                        }
+                    }
+                }
+            }
 
         }        
          
@@ -3008,7 +3044,15 @@ function saswp_get_mainEntity($schema_id){
                         $post_content = apply_filters('the_content', $post->post_content);
                     }
                 }else{
-                    $post_content = apply_filters('the_content', $post->post_content);
+
+                    // Check if this post is built with Elementor
+                    $is_elementor = get_post_meta( $post->ID, '_elementor_edit_mode', true );
+                    if ( $is_elementor === 'builder' ) {
+                        $post_content   = $post->post_content;       
+                    }else{
+                        $post_content = apply_filters('the_content', $post->post_content);
+                    }
+                
                 }
             }
             
@@ -3817,6 +3861,7 @@ function saswp_default_video_object_schema() {
                     $input1['embedUrl']   = saswp_validate_url($video_links[0]['video_url']);
                     
                 }
+            
             }
         }
     }

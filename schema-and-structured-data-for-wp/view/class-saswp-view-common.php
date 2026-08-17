@@ -19,19 +19,35 @@ class SASWP_View_Common {
     public    $item_list_item = array(
                              'Article'               => 'Article',   
                              'ScholarlyArticle'      => 'ScholarlyArticle',                                                              
-                             'Course'                => 'Course',                                                                                                                                                                                                            
+                             'Course'                => 'Course',                                                                                                                                                                                                        
                              'Movie'                 => 'Movie',                                   
                              'Product'               => 'Product',                                
                              'Recipe'                => 'Recipe',                                                                                      
                         );
-    
-    public function __construct() {
-        
-        add_action( 'init', [$this, 'load_properties'] );         
-                
-    }
+    public    $collection_page_item = array(
+                            'CollectionType'            => 'Select Collection Type',     
+                            'Article'                   => 'Article',     
+                            'ScholarlyArticle'          => 'ScholarlyArticle',                                     
+                            'BlogPosting'               => 'BlogPosting',                                     
+                            'NewsArticle'               => 'NewsArticle',          
+                            'AnalysisNewsArticle'       => 'AnalysisNewsArticle',    
+                            'AskPublicNewsArticle'      => 'AskPublicNewsArticle',      
+                            'BackgroundNewsArticle'     => 'BackgroundNewsArticle',       
+                            'OpinionNewsArticle'        => 'OpinionNewsArticle',   
+                            'ReportageNewsArticle'      => 'ReportageNewsArticle',     
+                            'ReviewNewsArticle'         => 'ReviewNewsArticle',         
+                            'WebPage'                   => 'WebPage',
+                            'ItemPage'                  => 'ItemPage'
+                        );
 
-    public function load_properties() {
+    public function get_properties_and_repeater_fields() {
+        
+        $schema_type_element    =   [];
+        $meta_name              =   [];
+        $itemlist_meta          =   [];
+        $coll_page_item         =   [];
+        $return_data            =   [];
+
         $mapping_repeater = SASWP_DIR_NAME . '/core/array-list/repeater-fields.php';
         require_once SASWP_DIR_NAME.'/core/array-list/schema-properties.php';
                 
@@ -39,27 +55,43 @@ class SASWP_View_Common {
                     
             $repeater_fields =  include $mapping_repeater;
             
-            $this->schema_type_element = $repeater_fields['schema_type_element'];
-            $this->_meta_name          = $repeater_fields['meta_name'];
+            $schema_type_element = $repeater_fields['schema_type_element'];
+            $meta_name           = $repeater_fields['meta_name'];
             
             foreach( $this->item_list_item as $item){
-                $this->itemlist_meta[$item]  = saswp_get_fields_by_schema_type(null, null, $item, 'manual');                        
+                $itemlist_meta[$item]  = saswp_get_fields_by_schema_type(null, null, $item, 'manual');                        
             }
-            $this->_meta_name['itemlist_item'] = $this->itemlist_meta;
-        }       
+            $meta_name['itemlist_item'] = $itemlist_meta;
+
+            foreach( $this->collection_page_item as $col_item){
+                $coll_page_item[$col_item]  = saswp_get_fields_by_schema_type(null, null, $col_item, 'manual');                        
+            }
+            $meta_name['collection_page_item'] = $coll_page_item;
+        }
+
+        $return_data['schema_type_element']     =   $schema_type_element;
+        $return_data['_meta_name']              =   $meta_name;
+        $return_data['itemlist_meta']           =   $itemlist_meta;
+        return $return_data;
+
     }
     
     public function saswp_get_dynamic_html( $schema_id, $meta_name, $index, $data ) {
                 
+                $return_data = $this->get_properties_and_repeater_fields();
+
                 $meta_fields = array();
                 $response    = '';
                 $output      = '';    
         
                 $item_type = get_post_meta($schema_id, 'saswp_itemlist_item_type', true); 
+                if ( $meta_name == 'collection_page_item' ) {
+                    $item_type = get_post_meta( $schema_id, 'saswp_collection_page_item_type', true );
+                }
                 
-                if($meta_name == 'itemlist_item'){
+                if( $meta_name == 'itemlist_item' || $meta_name == 'collection_page_item' ) {
                     
-                    $itemval = $this->_meta_name[$meta_name][$item_type];
+                    $itemval = $return_data['_meta_name'][$meta_name][$item_type];
                     if($itemval){
                          
                          foreach( $itemval as $key => $val){
@@ -71,7 +103,7 @@ class SASWP_View_Common {
                     
                     $meta_fields = $itemval;  
                 }else{
-                    $meta_fields = $this->_meta_name[$meta_name];               
+                    $meta_fields = $return_data['_meta_name'][$meta_name];               
                 }    
                 
                 
@@ -215,7 +247,9 @@ class SASWP_View_Common {
                     $tabs_fields       = '';
                     $itemlist_sub_type = '';
                     
-                    $schema_type_fields = $this->schema_type_element;
+                    $return_data = $this->get_properties_and_repeater_fields();
+
+                    $schema_type_fields = $return_data['schema_type_element'];
                     
                     if($schema_type !='' ) {
                         
@@ -223,8 +257,14 @@ class SASWP_View_Common {
                         
                     if($type_fields){
                        
-                    if($schema_type == 'ItemList'){
-                         $itemlist_sub_type     = get_post_meta($schema_id, 'saswp_itemlist_item_type', true); 
+                    if($schema_type == 'ItemList' || $schema_type == 'CollectionPage' ){
+                        if ( $schema_type == 'ItemList' ) {
+                            $itemlist_sub_type     = get_post_meta($schema_id, 'saswp_itemlist_item_type', true);    
+                        }
+                        if ( $schema_type == 'CollectionPage' ) {
+                            $itemlist_sub_type     = get_post_meta($schema_id, 'saswp_collection_page_item_type', true);    
+                        }
+                         
                          $tabs_fields .= '<div schema-id="'. esc_attr( $schema_id).'" class="saswp-table-create-onajax saswp-ps-toggle">';   
                         
                     }else{
@@ -473,14 +513,20 @@ class SASWP_View_Common {
                                              $media_width =$media_value['width'];
                                         }
                                             
+                                        if ( empty( $media_thumbnail ) ) {
+                                            $media_thumbnail    =   get_post_meta( $post_id, $meta_field['id'], true );    
+                                        }
+
                                         $image_pre = '';
                                         if($media_thumbnail){
-                                            
-                                           $image_pre = '<div class="saswp_image_thumbnail">';
-                                           // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
-                                           $image_pre .= '<img class="saswp_image_prev" src="'. esc_url( $media_thumbnail).'" />
-                                                         <a data-id="'. esc_attr( $meta_field['id']).'" href="#" class="saswp_prev_close">X</a>
-                                                        </div>'; 
+                                           
+                                           if ( ! empty( $media_height ) && ! empty( $media_width  ) ) {
+                                               $image_pre = '<div class="saswp_image_thumbnail">';
+                                               // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage
+                                               $image_pre .= '<img class="saswp_image_prev" src="'. esc_url( $media_thumbnail).'" />
+                                                             <a data-id="'. esc_attr( $meta_field['id']).'" href="#" class="saswp_prev_close">X</a>
+                                                            </div>'; 
+                                            }
                                             
                                         }
 					$input = sprintf(
@@ -735,6 +781,8 @@ class SASWP_View_Common {
                                 
                                     saswp_update_post_meta( $post_id, $media_key, $media_detail);
 
+                                }else{
+                                    delete_post_meta( $post_id, $media_key );
                                 }
                                 
                                 break;
@@ -762,7 +810,8 @@ class SASWP_View_Common {
         
     public function saswp_save_common_view($post_id, $all_schema = null){
 
-                
+                $return_data = $this->get_properties_and_repeater_fields();
+
                 $post_meta    = array();                    
                 // phpcs:ignore WordPress.Security.NonceVerification.Missing -- this is a dependent function and its all security measurament is done wherever it has been used.
                 if ( is_array( $_POST) ) {
@@ -786,7 +835,7 @@ class SASWP_View_Common {
                         saswp_update_post_meta( $post_id, 'saswp_modify_this_schema_'.$schema->ID, intval($_POST['saswp_modify_this_schema_'.$schema->ID]));
                      }                     
                     
-                     foreach ( $this->schema_type_element as $element){
+                     foreach ( $return_data['schema_type_element'] as $element){
                           
                         foreach( $element as $key => $val){
                             
